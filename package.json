@@ -1,0 +1,12 @@
+{
+  "name": "urbaneye-platform",
+  "version": "2.4.0",
+  "description": "UrbanEye — Smart Land & City Management Platform. Modern interactive GIS digital twin, municipal asset management, and citizen grievance platform for Smart India Hackathon.",
+  "scripts": {
+    "start": "python serve.py",
+    "serve": "python -m http.server 4173"
+  },
+  "keywords": ["smart-city", "gis", "cadastre", "digital-twin", "sih2024", "urban-management"],
+  "author": "UrbanEye Team",
+  "license": "MIT"
+}
