@@ -1,0 +1,107 @@
+/* AuraCity upstream is dark by default.
+   This file overrides key colors to match the host app light botanical scheme.
+   It is scoped by body background/text so it stays safe-ish.
+*/
+
+body{
+  background:#eef2e3 !important;
+  color:#000000 !important;
+}
+
+/* Top strip */
+#arch-showcase-btn,
+#mobile-menu-btn,
+#arch-modal,
+.glass-nav{
+  color:#043f2e !important;
+}
+
+.glass-nav{
+  background: rgba(252,252,252,0.85) !important;
+  border-bottom: 1px solid rgba(4,63,46,0.15) !important;
+}
+
+/* general text */
+.text-slate-200,
+.text-slate-300,
+.text-slate-400,
+.text-slate-600,
+.text-teal-300,
+.text-teal-400,
+.text-cyan-300,
+.text-cyan-400,
+.text-sky-300,
+.text-rose-300,
+.text-white{
+  color:#043f2e !important;
+}
+
+/* gradients from upstream -> switch to light-brand colors */
+.text-gradient{
+  background: linear-gradient(135deg, #043f2e 20%, #2a6f2b 60%, #78c51c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.text-gradient-cyan{
+  background: linear-gradient(135deg, #043f2e 0%, #2a6f2b 50%, #78c51c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Dark Tailwind bg classes (substring match) -> convert to near-paper */
+[class*="bg-slate-950"]{
+  background-color: rgba(252,252,252,0.9) !important;
+}
+[class*="bg-slate-900"]{
+  background-color: rgba(252,252,252,0.92) !important;
+}
+[class*="bg-[#091020"]{
+  background-color: rgba(252,252,252,0.9) !important;
+}
+
+/* Fix “bg-gradient-to-r from-teal-500 to-cyan-500” buttons */
+[class*="bg-gradient-to-r"][class*="from-teal-500"][class*="to-cyan-500"]{
+  background: linear-gradient(90deg, #c8f169 0%, #78c51c 100%) !important;
+}
+/* primary buttons */
+.bg-teal-500,
+.bg-gradient-to-r,
+.from-teal-500,
+.to-cyan-500,
+.border-teal-400,
+.border-teal-500\/30,
+.bg-teal-500\/20{
+  background-color:#c8f169 !important;
+  border-color: rgba(4,63,46,0.35) !important;
+  color:#000000 !important;
+}
+
+/* Keep the iframe overlay style consistent */
+a{ color:#043f2e !important; }
+
+/* Make cards and panels lighter */
+.bg-slate-950,
+.bg-slate-900,
+.bg-[#091020],
+.bg-slate-800,
+.bg-slate-900\/80,
+.bg-slate-950\/90,
+.bg-slate-900\/90,
+.border-slate-800,
+.border-slate-700{
+  background-color: rgba(252,252,252,0.9) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+
+.feature-card,
+.glass-panel{
+  background: rgba(252,252,252,0.75) !important;
+  border-color: rgba(4,63,46,0.12) !important;
+  box-shadow: none !important;
+}
+
+/* Don’t break canvas overlays */
+canvas{ background: transparent !important; }
+
+/* Hide 360 controls on landing page for identically styled UI */
+#btn-mode-360, #btn-mode-hd, #view-mode-hd { display: none !important; }

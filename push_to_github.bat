@@ -7,14 +7,19 @@ echo    Target: https://github.com/priyamrathore2007/aura-city.git
 echo ==============================================================
 echo.
 
-set GIT_PATH="%LOCALAPPDATA%\GitHubDesktop\app-3.6.5\resources\app\git\cmd\git.exe"
+set GIT_PATH=""
+for /d %%i in ("%LOCALAPPDATA%\GitHubDesktop\app-*") do (
+    if exist "%%i\resources\app\git\cmd\git.exe" set GIT_PATH="%%i\resources\app\git\cmd\git.exe"
+)
 
-if exist %GIT_PATH% (
+if not %GIT_PATH%=="" (
+    echo [INFO] Using Git: %GIT_PATH%
     %GIT_PATH% status
     echo.
     echo Pushing commits to origin main...
     %GIT_PATH% push origin main
 ) else (
+    echo [INFO] Using system Git
     git status
     echo.
     echo Pushing commits to origin main...

@@ -1,0 +1,48 @@
+@import "tailwindcss";
+@import 'leaflet/dist/leaflet.css';
+
+@layer base {
+  body {
+    background-color: #eef2e3;
+    color: #000000;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+  }
+}
+
+:root {
+  --color-pale-sage: #eef2e3;
+  --color-paper-white: #fcfcfc;
+  --color-ink-black: #000000;
+  --color-charcoal: #242423;
+  --color-deep-forest: #043f2e;
+  --color-chartreuse-lime: #c8f169;
+  --color-forest-mid: #2a6f2b;
+  --color-vivid-green: #78c51c;
+}
+
+/* Custom glowing pulse and scanner animations */
+@keyframes scannerBar {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-scanner {
+  animation: scannerBar 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 241, 105, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(200, 241, 105, 0); }
+}
+
+.animate-glow {
+  animation: pulseGlow 2.5s infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #eef2e3; }
+::-webkit-scrollbar-thumb { background: #043f2e; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #2a6f2b; }

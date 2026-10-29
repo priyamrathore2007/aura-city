@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auracity — AI Urban Digital Twin Platform</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#050811',
+              surface: '#0a1120',
+              card: '#0c1527',
+              teal: '#14b8a6',
+              cyan: '#06b6d4',
+              sky: '#38bdf8'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="leaflet/leaflet.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="theme-light-overrides.css" />
+</head>
+<body class="bg-[#050811] text-slate-200 antialiased selection:bg-teal-500 selection:text-slate-950">
+
+  <!-- Tooltip container for 360 city view -->
+  <div id="city-360-tooltip" class="fixed pointer-events-none z-50 p-3 rounded-xl border border-teal-500/40 bg-slate-950/95 backdrop-blur-md shadow-2xl text-xs text-slate-200 hidden max-w-xs transition-opacity duration-150"></div>
+
+  <!-- TOP STATUS STRIP -->
+  <div class="bg-slate-950/90 border-b border-teal-500/15 py-1.5 px-4 text-xs font-mono text-slate-400">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-teal-400 animate-ping"></span>
+        <span class="text-teal-300 font-bold tracking-wider">AURACITY LIVE SPATIAL TWIN:</span>
+        <span class="text-slate-300 hidden sm:inline">Raipur & Atal Nagar (RMC Wards 01–70)</span>
+        <span class="text-slate-600 hidden md:inline">•</span>
+        <span class="text-slate-400 hidden md:inline">Bhuiyan-CG Cadastre Integrated</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-emerald-400 bg-emerald-950/60 px-2.5 py-0.5 rounded border border-emerald-500/30 text-[11px] font-mono">
+          SYSTEM ONLINE
+        </span>
+        <a href="/dashboard" class="cta-open-dashboard text-[#c8f169] hover:text-white underline underline-offset-2 flex items-center gap-1 transition-colors font-mono">
+          <span>Go to Dashboard</span>
+          <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 glass-nav">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Auracity Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="relative w-11 h-11 rounded-xl bg-gradient-to-br from-teal-400 via-cyan-500 to-emerald-500 p-0.5 shadow-lg shadow-teal-500/20 group-hover:shadow-teal-400/40 transition-all duration-300">
+          <div class="w-full h-full bg-[#070d18] rounded-[10px] flex items-center justify-center relative overflow-hidden">
+            <!-- Aura Polygon & Luminous Iris SVG -->
+            <svg class="w-6 h-6 text-teal-400 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5" stroke-width="1.8" stroke="url(#auraLogoGrad)"/>
+              <circle cx="12" cy="12" r="4" fill="#2dd4bf" stroke="#0891b2" stroke-width="1.2"/>
+              <circle cx="12" cy="12" r="7" stroke="#22d3ee" stroke-width="0.8" stroke-dasharray="2 2"/>
+              <defs>
+                <linearGradient id="auraLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#2dd4bf"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xl font-extrabold tracking-tight text-[#043f2e] font-display">Auracity</span>
+          </div>
+          <p class="text-[10px] text-[#043f2e]/70 tracking-wider font-mono uppercase">AI Urban Digital Twin • Raipur</p>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <a href="#digital-twin-section" class="hover:text-teal-300 transition-colors flex items-center gap-1.5">
+          <i data-lucide="rotate-3d" class="w-4 h-4 text-teal-400"></i>
+          <span>360° 3D City</span>
+        </a>
+        <a href="#features-section" class="hover:text-teal-300 transition-colors flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i>
+          <span>Capabilities</span>
+        </a>
+        <a href="#gis-map-section" class="hover:text-teal-300 transition-colors flex items-center gap-1.5">
+          <i data-lucide="map" class="w-4 h-4 text-teal-400"></i>
+          <span>Raipur GIS</span>
+        </a>
+        <a href="#dashboard-section" class="hover:text-teal-300 transition-colors flex items-center gap-1.5">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-400"></i>
+          <span>RMC Analytics</span>
+        </a>
+        <a href="#citizen-portal-section" class="hover:text-teal-300 transition-colors flex items-center gap-1.5">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400"></i>
+          <span>Citizen Portal</span>
+        </a>
+      </nav>
+
+      <!-- Right CTAs: Highlighted Open Dashboard Button -->
+      <div class="hidden sm:flex items-center gap-3">
+        <button onclick="window.citizenPortal?.openReportModal()" class="btn-secondary text-xs">
+          <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+          <span>Report Issue</span>
+        </button>
+        <a href="/dashboard" class="cta-open-dashboard inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#c8f169] hover:bg-[#b5e054] text-[#043f2e] font-extrabold text-xs tracking-wide shadow-md shadow-[#c8f169]/30 hover:shadow-[#c8f169]/60 transition-all border border-[#043f2e]/20 ring-2 ring-[#c8f169]/40 hover:-translate-y-0.5">
+          <span>Open Dashboard</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+
+      <!-- Mobile Hamburger Button -->
+      <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Nav Menu (Toggled) -->
+    <div id="mobile-nav" class="hidden md:hidden border-t border-slate-800 bg-[#091020] px-4 py-4 space-y-3">
+      <a href="#digital-twin-section" class="block py-1 text-slate-300 hover:text-teal-300">360° 3D City Twin</a>
+      <a href="#features-section" class="block py-1 text-slate-300 hover:text-teal-300">Core Capabilities</a>
+      <a href="#gis-map-section" class="block py-1 text-slate-300 hover:text-teal-300">Raipur GIS Map</a>
+      <a href="#dashboard-section" class="block py-1 text-slate-300 hover:text-teal-300">Municipal Analytics</a>
+      <a href="#citizen-portal-section" class="block py-1 text-slate-300 hover:text-teal-300">Citizen Grievance Portal</a>
+      <div class="pt-3 border-t border-slate-800 flex gap-2">
+        <button onclick="window.citizenPortal?.openReportModal()" class="flex-1 py-2 text-center rounded-lg bg-[#eef2e3] border border-[#000000]/10 text-[#043f2e] text-xs font-semibold hover:bg-[#dde6cf] transition">
+          Report Issue
+        </button>
+        <button onclick="window.top.location.href='/dashboard'" class="flex-1 py-2 text-center rounded-lg bg-[#c8f169] hover:bg-[#b5e054] text-[#000000] font-bold text-xs transition shadow-sm">
+          Open Dashboard
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative z-10 space-y-28 pb-20">
+
+    <!-- HERO SECTION -->
+    <section id="digital-twin-section" class="relative pt-8 md:pt-14 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          
+          <!-- Hero Left Column: Headline, Subtitle, Metrics & CTAs -->
+          <div class="lg:col-span-5 space-y-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-teal-500/30 text-teal-300 text-xs font-mono shadow-inner">
+              <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+              <span>AURACITY RAIPUR • BHUIYAN GIS DIGITAL TWIN</span>
+            </div>
+
+            <!-- Main Headline -->
+            <h1 class="text-4xl sm:text-5xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.15] font-display">
+              A Clearer View of <span class="text-gradient">Every City</span>
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-sans">
+              Connecting land information, municipal assets, and citizens for smarter urban management across Raipur and Atal Nagar.
+            </p>
+
+            <!-- Call to Actions -->
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <a href="/dashboard" class="cta-open-dashboard px-7 py-3.5 rounded-xl bg-[#c8f169] hover:bg-[#b5e054] text-[#043f2e] font-extrabold text-sm shadow-xl shadow-[#c8f169]/40 hover:shadow-[#c8f169]/60 transition-all flex items-center gap-2.5 group transform hover:-translate-y-0.5 border border-[#043f2e]/20 ring-2 ring-[#c8f169]/50">
+                <span class="tracking-wide">Open Dashboard</span>
+                <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+              </a>
+              
+              <button onclick="window.citizenPortal?.openReportModal()" class="px-5 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-teal-500/30 text-slate-200 hover:text-white text-sm font-semibold transition-all flex items-center gap-2">
+                <i data-lucide="camera" class="w-4 h-4 text-teal-400"></i>
+                <span>Report Civic Issue</span>
+              </button>
+
+              <button id="sim-encroach-btn" class="px-4 py-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/50 border border-rose-500/30 text-rose-300 text-xs font-mono transition-all flex items-center gap-1.5">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-400"></i>
+                <span>Simulate Encroachment</span>
+              </button>
+            </div>
+
+            <!-- Key Impact Metrics Strip -->
+            <div class="pt-6 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <div class="text-2xl font-extrabold text-white font-mono tracking-tight text-gradient">100%</div>
+                <div class="text-[11px] text-slate-400 leading-tight mt-0.5">Bhuiyan Cadastre Digitized</div>
+              </div>
+              <div>
+                <div class="text-2xl font-extrabold text-teal-300 font-mono tracking-tight">3.8 hrs</div>
+                <div class="text-[11px] text-slate-400 leading-tight mt-0.5">Average RMC SLA Turnaround</div>
+              </div>
+              <div>
+                <div class="text-2xl font-extrabold text-cyan-300 font-mono tracking-tight">142K+</div>
+                <div class="text-[11px] text-slate-400 leading-tight mt-0.5">Municipal Assets Geotagged</div>
+              </div>
+              <div>
+                <div class="text-2xl font-extrabold text-sky-300 font-mono tracking-tight">₹248 Cr</div>
+                <div class="text-[11px] text-slate-400 leading-tight mt-0.5">Land Revenue Identified</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Hero Right Column: 360-Degree Moveable 3D Smart City Engine -->
+          <div class="lg:col-span-7">
+            <div class="relative w-full rounded-2xl overflow-hidden border border-teal-500/30 shadow-2xl bg-slate-950">
+              
+              <!-- View Mode Switcher Header -->
+              <div class="p-3 bg-slate-900/90 border-b border-teal-500/20 flex flex-wrap items-center justify-between gap-2 z-30 relative">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-ping"></span>
+                  <span class="text-xs font-bold text-white tracking-wider">RAIPUR 3D SPATIAL TWIN</span>
+                </div>
+
+                <!-- Single Clean Focus: 360° Vector Canvas -->
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-[6px] bg-[#c8f169] text-[#000000] font-mono text-[11px] font-bold tracking-wide">
+                    360° LIVE TWIN
+                  </span>
+                  <a href="/dashboard" class="cta-open-dashboard hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-[6px] bg-[#043f2e] text-[#c8f169] font-mono text-[11px] hover:bg-[#075940] transition">
+                    <span>Full Dashboard</span>
+                    <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                  </a>
+                </div>
+              </div>
+
+              <!-- VIEW 1: 360-Degree Interactive 3D Canvas View -->
+              <div id="view-mode-360" class="relative w-full h-[520px]">
+                <div id="city-360-container" class="relative w-full h-full cursor-grab active:cursor-grabbing select-none overflow-hidden bg-radial from-[#0e1f38] via-[#091426] to-[#040812]">
+                  
+                  <!-- 3D Canvas -->
+                  <canvas id="city-360-canvas" class="w-full h-full absolute inset-0 z-10"></canvas>
+
+                  <!-- 360° Floating Controls Top Overlay -->
+                  <div class="absolute top-3 inset-x-3 flex flex-wrap items-center justify-between gap-2 z-20 pointer-events-none">
+                    <!-- Layer filter pills -->
+                    <div class="flex items-center gap-1.5 text-[11px] font-mono pointer-events-auto">
+                      <button class="city-360-layer-toggle px-2.5 py-1 rounded-lg border bg-teal-500/20 border-teal-400 text-teal-300 transition-all" data-layer="parcels">
+                        📐 Bhuiyan
+                      </button>
+                      <button class="city-360-layer-toggle px-2.5 py-1 rounded-lg border bg-teal-500/20 border-teal-400 text-teal-300 transition-all" data-layer="traffic">
+                        🚗 Traffic
+                      </button>
+                      <button class="city-360-layer-toggle px-2.5 py-1 rounded-lg border bg-teal-500/20 border-teal-400 text-teal-300 transition-all" data-layer="alerts">
+                        ⚠️ Alerts
+                      </button>
+                    </div>
+
+                    <!-- Auto-rotate status -->
+                    <button id="btn-auto-rotate-360" class="pointer-events-auto px-3 py-1 rounded-lg border bg-teal-500/20 border-teal-400 text-teal-300 text-xs font-mono transition-all flex items-center gap-1">
+                      <span>🔄 Auto-Spinning</span>
+                    </button>
+                  </div>
+                  <div class="absolute bottom-3 inset-x-3 flex flex-wrap items-center justify-between gap-2 z-20 pointer-events-none">
+                    
+                    <!-- 360 Orientation Dial & Angle readout -->
+                    <div class="pointer-events-auto flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-teal-500/30 text-xs font-mono text-slate-300 backdrop-blur-md">
+                      <div id="compass-dial-icon" class="w-4 h-4 text-teal-400 transition-transform duration-100">
+                        <i data-lucide="compass" class="w-4 h-4"></i>
+                      </div>
+                      <span>BEARING: <strong id="compass-deg-val" class="text-teal-300">32°</strong></span>
+                    </div>
+
+                    <!-- Compass Presets -->
+                    <div class="pointer-events-auto flex items-center gap-1 text-[10px] font-mono">
+                      <button class="compass-preset-btn px-2 py-1 rounded bg-slate-900/90 border border-slate-700 text-slate-300 hover:text-white hover:border-teal-400 transition-all" data-deg="0">
+                        N (0°)
+                      </button>
+                      <button class="compass-preset-btn px-2 py-1 rounded bg-slate-900/90 border border-slate-700 text-slate-300 hover:text-white hover:border-teal-400 transition-all" data-deg="90">
+                        E (90°)
+                      </button>
+                      <button class="compass-preset-btn px-2 py-1 rounded bg-slate-900/90 border border-slate-700 text-slate-300 hover:text-white hover:border-teal-400 transition-all" data-deg="180">
+                        S (180°)
+                      </button>
+                      <button class="compass-preset-btn px-2 py-1 rounded bg-slate-900/90 border border-slate-700 text-slate-300 hover:text-white hover:border-teal-400 transition-all" data-deg="270">
+                        W (270°)
+                      </button>
+                    </div>
+
+                    <!-- Interaction Hint -->
+                    <div class="pointer-events-none hidden md:flex items-center gap-1.5 text-[11px] text-teal-300 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-teal-500/20">
+                      <i data-lucide="mouse-pointer" class="w-3.5 h-3.5"></i>
+                      <span>Click & drag to rotate 360° freely • Scroll to zoom</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- VIEW 2: Enhanced HD Satellite Twin (Hidden by default, switched via tab) -->
+              <div id="view-mode-hd" class="hidden relative w-full h-[520px]">
+                <div id="city-hd-container" class="relative w-full h-full"></div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CORE FEATURE CARDS SECTION (4 Pillars) -->
+    <section id="features-section" class="relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-teal-500/30 text-teal-300 text-xs font-mono">
+            <span>PLATFORM CAPABILITIES</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-display">
+            Four Pillars of Intelligent Urban Governance
+          </h2>
+          <p class="text-slate-400 text-sm sm:text-base">
+            Unified geospatial workflows linking Chhattisgarh's Bhuiyan land records, Raipur Municipal Corporation telemetry, and citizen crowd-reporting on a single real-time spatial fabric.
+          </p>
+        </div>
+
+        <!-- 4 Feature Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+          <!-- Card 1: Smart Land Mapping -->
+          <div class="feature-card p-6 flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-5 group-hover:scale-110 transition-transform">
+                <i data-lucide="map-pin" class="w-6 h-6"></i>
+              </div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-950/60 text-teal-300 border border-teal-500/20">BHUIYAN CG GIS</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mb-2.5 group-hover:text-teal-300 transition-colors">
+                Smart Land Mapping
+              </h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Precision GIS cadastral overlays integrated directly with Chhattisgarh Bhuiyan land portal. Automatically detects spatial boundary deviations and flags encroachment risks in real time.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] font-mono text-teal-400 flex items-center justify-between">
+              <span>BHUIYAN-SYNC READY</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Card 2: Municipal Asset Management -->
+          <div class="feature-card p-6 flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-5 group-hover:scale-110 transition-transform">
+                <i data-lucide="cpu" class="w-6 h-6"></i>
+              </div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-500/20">RMC SCADA & IOT</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mb-2.5 group-hover:text-cyan-300 transition-colors">
+                Municipal Asset Control
+              </h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                70-ward level telemetry for Raipur streetlights, water pressure valves, Telibandha lakefront sensors, and solid waste compactor GPS. Real-time predictive health indices minimize downtime.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] font-mono text-cyan-400 flex items-center justify-between">
+              <span>99.4% HEALTH INDEX</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Card 3: Citizen Issue Reporting -->
+          <div class="feature-card p-6 flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-5 group-hover:scale-110 transition-transform">
+                <i data-lucide="camera" class="w-6 h-6"></i>
+              </div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950/60 text-rose-300 border border-rose-500/20">COMPUTER VISION</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mb-2.5 group-hover:text-rose-300 transition-colors">
+                Citizen Issue Reporting
+              </h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Crowdsourced geotagged photo reporting with computer vision to categorize GE Road potholes, Pandri garbage dumps, and dark sectors. Automated Raipur Municipal Corporation work orders.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] font-mono text-rose-400 flex items-center justify-between">
+              <span>3.8H AVG RESOLUTION</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Card 4: Urban Planning Insights -->
+          <div class="feature-card p-6 flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-5 group-hover:scale-110 transition-transform">
+                <i data-lucide="sparkles" class="w-6 h-6"></i>
+              </div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950/60 text-sky-300 border border-sky-500/20">PREDICTIVE AI</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mb-2.5 group-hover:text-sky-300 transition-colors">
+                Urban Planning Insights
+              </h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Heat island simulations, flood runoff modeling for Kharun river and Telibandha wetlands, green canopy density metrics, and automated property tax footprint discovery.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] font-mono text-sky-400 flex items-center justify-between">
+              <span>₹248 CR REVENUE FOUND</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RAIPUR & ATAL NAGAR GIS MAP PREVIEW (Interactive Large Map) -->
+    <section id="gis-map-section" class="relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c8f169]/20 border border-[#c8f169] text-[#043f2e] text-xs font-mono mb-2">
+              <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+              <span>INTERACTIVE SPATIAL EXPLORER</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#043f2e] tracking-tight font-display">
+              Raipur & Atal Nagar GIS Digital Twin
+            </h2>
+            <p class="text-[#242423]/80 text-sm max-w-2xl mt-1">
+              Real interactive geospatial digital twin of Raipur & Atal Nagar. Marked out with cadastral Bhuiyan land parcels, municipal SCADA nodes, road anomaly alerts, and ward boundaries. Switch between street and satellite view, or click any pin to inspect land records.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-[#043f2e]/70 font-mono">Quick Inspect:</span>
+            <button onclick="window.raipurMap?.openInspector(window.raipurMap.parcels[0])" class="px-3 py-1.5 rounded-lg bg-[#c8f169]/30 text-[#043f2e] border border-[#c8f169] text-xs font-bold hover:bg-[#c8f169] transition-colors">
+              Atal Nagar Mantralaya
+            </button>
+            <button onclick="window.raipurMap?.openInspector(window.raipurMap.parcels[4])" class="px-3 py-1.5 rounded-lg bg-rose-100 text-rose-700 border border-rose-300 text-xs font-bold hover:bg-rose-200 transition-colors">
+              Tatibandh Encroachment
+            </button>
+          </div>
+        </div>
+
+        <!-- Raipur Vector GIS Map Mounted Here -->
+        <div id="raipur-map-mount" class="w-full"></div>
+
+      </div>
+    </section>
+
+    <!-- CLEAN DASHBOARD & MUNICIPAL ANALYTICS SECTION -->
+    <section id="dashboard-section" class="relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-12 space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-cyan-500/30 text-cyan-300 text-xs font-mono">
+            <span>OPERATIONAL METRICS</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-display">
+            Raipur Municipal Corporation Command Dashboard
+          </h2>
+          <p class="text-slate-400 text-sm">
+            Live velocity of civic grievance resolution, ward SLA rankings, and spatial audit indices across Raipur and Atal Nagar Development Area.
+          </p>
+        </div>
+
+        <!-- 4 Top KPI Stat Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          
+          <div class="glass-panel p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+              <span class="font-medium">CIVIC RESOLUTION SLA</span>
+              <span class="text-emerald-400 font-mono font-bold">↑ 4.1%</span>
+            </div>
+            <div class="text-3xl font-extrabold text-white font-mono tracking-tight">96.2%</div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div class="bg-gradient-to-r from-teal-400 to-emerald-400 h-full w-[96.2%]"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 mt-2 font-mono">
+              <span>Target: 92.0%</span>
+              <span class="text-teal-300 font-semibold">Exceeding SLA</span>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+              <span class="font-medium">GEOTAGGED ASSETS</span>
+              <span class="text-teal-400 font-mono font-bold">+1,420 Q3</span>
+            </div>
+            <div class="text-3xl font-extrabold text-white font-mono tracking-tight">142,390</div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div class="bg-gradient-to-r from-teal-400 to-cyan-400 h-full w-[99.2%]"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 mt-2 font-mono">
+              <span>Active Telemetry: 99.2%</span>
+              <span class="text-cyan-300 font-semibold">1,420 Nodes</span>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+              <span class="font-medium">GRIEVANCES RESOLVED</span>
+              <span class="text-cyan-400 font-mono font-bold">3.8h Avg</span>
+            </div>
+            <div class="text-3xl font-extrabold text-white font-mono tracking-tight">19,280</div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div class="bg-gradient-to-r from-cyan-400 to-blue-400 h-full w-[94%]"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 mt-2 font-mono">
+              <span>Total Filed: 20,140</span>
+              <span class="text-sky-300 font-semibold">95.7% Closed</span>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+              <span class="font-medium">LAND REVENUE AUDITED</span>
+              <span class="text-emerald-400 font-mono font-bold">+₹38 Cr</span>
+            </div>
+            <div class="text-3xl font-extrabold text-white font-mono tracking-tight">₹248.6 Cr</div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div class="bg-gradient-to-r from-teal-400 to-amber-400 h-full w-[88%]"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 mt-2 font-mono">
+              <span>Discrepant Footprints: 940</span>
+              <span class="text-amber-300 font-semibold">Tax Assessed</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Dashboard Charts & Ward Efficiency Leaderboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <div class="lg:col-span-7 glass-panel p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <div>
+                <h3 class="text-base font-bold text-white">Civic Issue Resolution Velocity</h3>
+                <p class="text-xs text-slate-400">Daily volume of incoming vs resolved citizen reports</p>
+              </div>
+
+              <div class="flex items-center gap-1 text-xs">
+                <button class="chart-tf-btn px-3 py-1 rounded-lg border bg-teal-500/20 border-teal-400 text-teal-300 font-mono transition-all" data-tf="7d">
+                  Last 7 Days
+                </button>
+                <button class="chart-tf-btn px-3 py-1 rounded-lg border bg-slate-800 border-slate-700 text-slate-400 font-mono hover:text-white transition-all" data-tf="30d">
+                  Last 30 Days
+                </button>
+              </div>
+            </div>
+
+            <div class="w-full h-60 relative">
+              <canvas id="resolution-chart" class="w-full h-full"></canvas>
+            </div>
+
+            <div class="flex items-center justify-center gap-6 mt-4 pt-3 border-t border-slate-800 text-xs font-mono">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-1 bg-cyan-400 rounded-full"></span>
+                <span class="text-slate-300">Incoming Citizen Reports</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-1 bg-teal-400 rounded-full border border-dashed border-teal-300"></span>
+                <span class="text-slate-300">Resolved by Raipur Nagar Nigam</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ward Leaderboard -->
+          <div class="lg:col-span-5 glass-panel p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-base font-bold text-white">Ward Efficiency Leaderboard</h3>
+                  <p class="text-xs text-slate-400">Raipur Municipal Corporation Zonal Ranking</p>
+                </div>
+                <span class="text-xs font-mono text-teal-400 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-500/30">
+                  TOP 5
+                </span>
+              </div>
+
+              <div class="space-y-3.5">
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-white font-medium">Ward 34 — Atal Nagar (Sector 19)</span>
+                    <span class="text-teal-300 font-mono font-bold">99.1% SLA (2.4h avg)</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div class="bg-teal-400 h-full w-[99.1%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-white font-medium">Ward 42 — Telibandha Marine Drive</span>
+                    <span class="text-teal-300 font-mono font-bold">97.4% SLA (2.8h avg)</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div class="bg-cyan-400 h-full w-[97.4%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-white font-medium">Ward 28 — Pandri / Jaistambh</span>
+                    <span class="text-teal-300 font-mono font-bold">95.2% SLA (3.4h avg)</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div class="bg-sky-400 h-full w-[95.2%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-white font-medium">Ward 51 — VIP Road / Airport Way</span>
+                    <span class="text-amber-300 font-mono font-bold">91.6% SLA (4.2h avg)</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div class="bg-amber-400 h-full w-[91.6%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-white font-medium">Ward 12 — Budha Talab / Tatibandh</span>
+                    <span class="text-amber-300 font-mono font-bold">88.4% SLA (4.8h avg)</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div class="bg-amber-500 h-full w-[88.4%]"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <span>Automatic RMC Escrow SLA Penalties Active</span>
+              <button onclick="window.triggerNotification('Exporting Zonal Audit', 'Zonal Municipal performance PDF generated for RMC Commissioner.')" class="text-teal-300 hover:text-white font-medium">
+                Export Audit PDF
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CITIZEN ISSUE REPORTING & COMPLAINT STATUS PREVIEW -->
+    <section id="citizen-portal-section" class="relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-teal-500/30 text-teal-300 text-xs font-mono mb-2">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+              <span>CITIZEN-FIRST CIVIC TELEMETRY</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-display">
+              Citizen Reporting & Live Complaint Tracker
+            </h2>
+            <p class="text-slate-400 text-sm max-w-2xl mt-1">
+              Real-world preview of citizen captures from Raipur with computer-vision bounding boxes, GPS geotags, and transparent 5-step Raipur Municipal Corporation resolution steppers.
+            </p>
+          </div>
+
+          <button onclick="window.citizenPortal?.openReportModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-teal-500/20 transition-all flex items-center gap-2 w-fit">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Test Citizen Grievance Simulation</span>
+          </button>
+        </div>
+
+        <div id="citizen-portal-mount" class="w-full"></div>
+
+      </div>
+    </section>
+
+    <!-- SMART INDIA HACKATHON PITCH HIGHLIGHTS -->
+    <section class="relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="glass-panel p-8 sm:p-10 relative overflow-hidden border-teal-500/30">
+          <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-teal-500/10 blur-3xl pointer-events-none"></div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-8 space-y-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-mono">
+                <span>SMART INDIA HACKATHON 2024 SHOWCASE</span>
+              </div>
+              <h3 class="text-2xl sm:text-3xl font-extrabold text-white font-display">
+                Engineered for Chhattisgarh's Urban Local Bodies
+              </h3>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                Auracity eliminates bureaucratic silos by synchronizing the state Bhuiyan GIS land database with municipal SCADA networks and citizen smartphones. Tested against Raipur's 70 municipal wards and Atal Nagar Smart City to deliver unassailable land transparency and rapid civic grievance turnaround.
+              </p>
+              
+              <div class="flex flex-wrap gap-4 pt-2 text-xs font-mono text-slate-300">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400"></i>
+                  <span>Zero Proprietary Map Lock-in</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400"></i>
+                  <span>Bhuiyan CG & NIC API Compatible</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400"></i>
+                  <span>Privacy-Preserving On-Device AI</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="lg:col-span-4 flex flex-col gap-3">
+              <a href="/dashboard" class="cta-open-dashboard w-full py-3.5 bg-[#c8f169] hover:bg-[#b5e054] text-[#043f2e] font-extrabold text-sm rounded-xl transition-all shadow-xl shadow-[#c8f169]/30 flex items-center justify-center gap-2 border border-[#043f2e]/15">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                <span>Open Auracity Dashboard</span>
+              </a>
+              <button onclick="window.citizenPortal?.openReportModal()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 border border-teal-500/30 text-teal-300 text-xs font-semibold rounded-xl transition-all">
+                Simulate Grievance Routing Flow
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-[#043f2e]/10 bg-[#eef2e3] py-12 text-[#043f2e]/80 text-xs font-sans">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-xl font-bold text-[#043f2e] font-display">Auracity</span>
+          </div>
+          <p class="text-[#043f2e]/70 text-xs leading-relaxed">
+            AI-powered Urban Digital Twin and Municipal Resilience Platform for Raipur and Atal Nagar. Bridging Bhuiyan CG Cadastre, Municipal Asset Telemetry, and Citizen Crowdsourced AI.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-[#043f2e] font-semibold mb-3">Raipur GIS Twin</h4>
+          <ul class="space-y-1.5">
+            <li><a href="#gis-map-section" class="text-[#043f2e]/70 hover:text-[#4c7a12] transition-colors">Telibandha Marine Drive Eco-Zone</a></li>
+            <li><a href="#gis-map-section" class="text-[#043f2e]/70 hover:text-[#4c7a12] transition-colors">Atal Nagar Sector 19 Mantralaya</a></li>
+            <li><a href="#gis-map-section" class="text-[#043f2e]/70 hover:text-[#4c7a12] transition-colors">Pandri Commercial Trade Guild</a></li>
+            <li><a href="#gis-map-section" class="text-[#043f2e]/70 hover:text-[#4c7a12] transition-colors">VIP Road Airport Corridor</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-[#043f2e] font-semibold mb-3">RMC Operations</h4>
+          <ul class="space-y-1.5">
+            <li><a href="/dashboard" class="cta-open-dashboard text-[#043f2e]/70 hover:text-[#4c7a12] transition-colors">70-Ward SLA Performance</a></li>
+            <li><a href="/dashboard" class="cta-open-dashboard text-[#043f2e]/70 hover:text-[#4c7a12] transition-colors">SCADA Streetlight Telemetry</a></li>
+            <li><a href="/dashboard" class="cta-open-dashboard text-[#043f2e]/70 hover:text-[#4c7a12] transition-colors">GE Road Pothole AI Detection</a></li>
+            <li><a href="/dashboard" class="cta-open-dashboard text-[#043f2e]/70 hover:text-[#4c7a12] transition-colors">Bhuiyan Encroachment Heatmap</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-[#043f2e] font-semibold mb-3">Auracity Platform</h4>
+          <p class="text-[#043f2e]/70 text-xs leading-relaxed mb-3">
+            Compliant with Digital India Land Records Modernization Programme (DILRMP) & Chhattisgarh Smart Cities Mission Guidelines.
+          </p>
+          <div class="text-[11px] font-mono text-[#4c7a12]">
+            Node: IN-CG-RPR-RMC-001
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-6 border-t border-[#043f2e]/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[#043f2e]/55 text-[11px]">
+        <div>© 2026 Auracity. Urban Digital Twin & Municipal Resilience Platform (Raipur, Chhattisgarh).</div>
+        <div class="flex items-center gap-4">
+          <span>Privacy Policy</span>
+          <span>Terms of Service</span>
+          <span class="text-[#4c7a12] font-mono">Status: All Raipur Nodes Operational</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ARCHITECTURE MODAL -->
+  <div id="arch-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-950 border border-teal-500/40 rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button id="arch-modal-close" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex items-center gap-2 mb-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+        <span class="text-xs font-mono text-cyan-300 uppercase tracking-wider font-bold">AURACITY PLATFORM ARCHITECTURE • RAIPUR DIGITAL TWIN</span>
+      </div>
+      <h3 class="text-2xl font-bold text-white mb-2">Auracity Platform Architecture (Raipur)</h3>
+      <p class="text-xs text-slate-300 mb-6">
+        How Auracity solves the three critical bottlenecks of Chhattisgarh's Urban Local Bodies: Land boundary discrepancies, sluggish municipal asset maintenance, and citizen opacity.
+      </p>
+
+      <div class="space-y-4 text-xs">
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-teal-500/20">
+          <h4 class="font-bold text-white text-sm mb-1 text-teal-300">1. The Problem in Rapidly Expanding Cities</h4>
+          <p class="text-slate-300 leading-relaxed">
+            With the rapid expansion of Raipur and Atal Nagar, outdated boundary records lead to encroachment disputes along highways and lake buffers. Municipal asset records remain fragmented, and citizen grievances face delays due to lack of geotagged dispatch.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/20">
+          <h4 class="font-bold text-white text-sm mb-1 text-cyan-300">2. The Auracity Triad</h4>
+          <ul class="space-y-1.5 text-slate-300">
+            <li>• <strong>Bhuiyan CG Cadastre Sync:</strong> Live integration with Chhattisgarh Bhuiyan land portal & Khasra extracts to automatically audit spatial footprints.</li>
+            <li>• <strong>RMC IoT Telemetry Fabric:</strong> Real-time monitoring of 14,200+ municipal assets (streetlights, water pumps, waste hoppers).</li>
+            <li>• <strong>Citizen-AI Grievance Engine:</strong> Computer vision on citizen smartphone photos flags pothole depth, waste volume, and dark zones with automatic SLA routing.</li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-sky-500/20">
+          <h4 class="font-bold text-white text-sm mb-1 text-sky-300">3. Measurable Civic Impact (Raipur Pilot)</h4>
+          <div class="grid grid-cols-2 gap-3 mt-2 font-mono">
+            <div class="p-2 bg-slate-950 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px]">REVENUE IDENTIFIED</span>
+              <span class="text-white font-bold text-sm">₹248.6 Cr found</span>
+            </div>
+            <div class="p-2 bg-slate-950 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px]">SLA SPEEDUP</span>
+              <span class="text-teal-300 font-bold text-sm">14 Days → 3.8 Hours</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+        <button onclick="document.getElementById('arch-modal').classList.add('hidden')" class="px-5 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl transition-all">
+          Close Showcase
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="city-360.js"></script>
+  <!-- city-showcase.js stripped (HD mode removed) -->
+  <script src="leaflet/leaflet.js"></script>
+  <script src="raipur-map.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="citizen-portal.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
