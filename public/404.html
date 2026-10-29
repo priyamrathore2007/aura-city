@@ -3,16 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AuraCity — Page Not Found</title>
+    <title>AuraCity — AI Urban Digital Twin</title>
   </head>
   <body>
     <script type="text/javascript">
-      // Single Page App fallback for GitHub Pages
-      // Redirects all 404s to index.html so React Router can handle the route
-      const path = window.location.pathname
-      const base = '/AuraCity/'
-      const url = base + 'index.html#' + path
-      window.location.replace(url)
+      // SPA fallback for GitHub Pages
+      // Redirects non-root requests to hash router so React Router renders the page
+      var path = window.location.pathname;
+      var repo = '/aura-city';
+      var clean = path;
+      if (clean.indexOf(repo) === 0) {
+        clean = clean.substring(repo.length);
+      }
+      if (clean.charAt(0) === '/') {
+        clean = clean.substring(1);
+      }
+      var target = (path.indexOf(repo) === 0 ? repo + '/' : '/') + '#' + (clean ? '/' + clean : '/');
+      window.location.replace(target);
     </script>
   </body>
 </html>

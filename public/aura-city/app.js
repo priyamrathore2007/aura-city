@@ -18,9 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       // Works whether landing is served standalone or inside an iframe
       if (window.top && window.top !== window) {
-        window.top.location.href = '/dashboard';
-      } else {
-        window.location.href = '/dashboard';
+        try { window.top.location.hash = '#/dashboard'; } catch (err) { window.top.location.href = '#/dashboard'; } } else { window.location.href = '../#/dashboard';
       }
     });
   });

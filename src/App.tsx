@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import Landing from './pages/Landing';
 import DashboardLayout from './components/DashboardLayout';
 import Overview from './pages/Overview';
@@ -14,7 +14,7 @@ import AnimatedPage from './components/AnimatedPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
@@ -29,6 +29,6 @@ export default function App() {
           <Route path="apis" element={<AnimatedPage><ApiRegistryPage /></AnimatedPage>} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
